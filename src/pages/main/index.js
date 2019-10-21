@@ -1,11 +1,38 @@
-import React from 'react';
+import React, { Component } from "react";
+import { StyleSheet, View } from "react-native";
+import MapboxGL from "@react-native-mapbox-gl/maps";
 
-import { View } from 'react-native';
+MapboxGL.setAccessToken("pk.eyJ1IjoiYW5kcmUtZWR1YXJkbyIsImEiOiJjazFydWJnNDMwOTQzM2NueXJzOHVobXJzIn0.3zXesN6jxrEtueZsKbnQYg");
 
-// import styles from './styles';
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF"
+  },
+  container: {
+    height: 300,
+    width: 300,
+    backgroundColor: "tomato"
+  },
+  map: {
+    flex: 1
+  }
+});
 
-const Main = () => (
-  <View />
-);
+export default class App extends Component {
+  componentDidMount() {
+    MapboxGL.setTelemetryEnabled(false);
+  }
 
-export default Main;
+  render() {
+    return (
+      <View style={styles.page}>
+        <View style={styles.container}>
+          <MapboxGL.MapView style={styles.map} />
+        </View>
+      </View>
+    );
+  }
+}
