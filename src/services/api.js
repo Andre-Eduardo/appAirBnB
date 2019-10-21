@@ -6,7 +6,19 @@ import axios from 'axios';
 ** Simulador IOS:           http://localhost:3333/
 */
 const api = axios.create({
-  baseURL: 'http://192.168.0.104:3333/',
+  baseURL: 'https://server-airbnb.herokuapp.com',
 });
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await AsyncStorage.getItem('@AirBnbApp:token');
 
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  } catch (err) {
+    alert(err);
+  }
+});
 export default api;
