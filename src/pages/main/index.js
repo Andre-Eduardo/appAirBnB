@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import MapboxGL from "@react-native-mapbox-gl/maps";
 
 MapboxGL.setAccessToken("pk.eyJ1IjoiYW5kcmUtZWR1YXJkbyIsImEiOiJjazFydWJnNDMwOTQzM2NueXJzOHVobXJzIn0.3zXesN6jxrEtueZsKbnQYg");
-
+import { RNCamera } from 'react-native-camera';
 import api from '../../services/api';
 
 import { Container, AnnotationContainer, AnnotationText } from './styles';
