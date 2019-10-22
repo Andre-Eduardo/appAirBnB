@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StatusBar, View , Dimensions,Modal} from "react-native";
+import { StatusBar, View ,Modal} from "react-native";
 import PropTypes from 'prop-types';
 import MapboxGL from "@react-native-mapbox-gl/maps";
 
@@ -32,6 +32,14 @@ import {
   MarkerLabel,
   Form,
   Input,
+  DetailsModalFirstDivision,
+  DetailsModalSecondDivision,
+  DetailsModalThirdDivision,
+  DetailsModalBackButton,
+  DetailsModalPrice,
+  DetailsModalRealtyTitle,
+  DetailsModalRealtySubTitle,
+  DetailsModalRealtyAddress,
 } from './styles';
 
 export default class Main extends Component {
@@ -44,6 +52,8 @@ export default class Main extends Component {
     newRealty: false,
     cameraModalOpened: false,
     dataModalOpened: false,
+    detailsModalOpened: false,
+    realtyDetailed: null,
     realtyData: {
       location: {
         latitude: null,
@@ -84,6 +94,11 @@ export default class Main extends Component {
     cameraModalOpened: false,
   })
 
+  handleDetailsModalClose = index => this.setState({
+    detailsModalOpened: !this.state.detailsModalOpened,
+    realtyDetailed: index,
+  })
+
   handleGetPositionPress = async () => {
     try {
       const [longitude, latitude] = await this.map.getCenter();
@@ -117,28 +132,28 @@ export default class Main extends Component {
     }
   }
 
-  handleNameChange = name => {
+  handleInputChange = (index, value) => {
     const { realtyData } = this.state;
-    this.setState({ realtyData: {
-      ...realtyData,
-      name,
-    }});
-  }
-
-  handleAddressChange = address => {
-    const { realtyData } = this.state;
-    this.setState({ realtyData: {
-      ...realtyData,
-      address,
-    }});
-  }
-
-  handlePriceChange = price => {
-    const { realtyData } = this.state;
-    this.setState({ realtyData: {
-      ...realtyData,
-      price,
-    }});
+    switch (index) {
+      case 'name':
+        this.setState({ realtyData: {
+          ...realtyData,
+          name: value,
+        }});
+        break;
+      case 'address':
+        this.setState({ realtyData: {
+          ...realtyData,
+          address: value,
+        }});
+        break;
+      case 'price':
+        this.setState({ realtyData: {
+          ...realtyData,
+          price: value,
+        }});
+        break;
+    }
   }
 
   saveRealty = async () => {
@@ -205,27 +220,26 @@ export default class Main extends Component {
   )
 
   renderLocations = () => (
-    this.state.locations.map(location => (
+    this.state.locations.map((location, index) => (
       <MapboxGL.PointAnnotation
         id={location.id.toString()}
         coordinate={[parseFloat(location.longitude), parseFloat(location.latitude)]}
+        key={location.id.toString()}
       >
         <AnnotationContainer>
-          <AnnotationText>{location.price}</AnnotationText>
+          <AnnotationText onPress={() => this.handleDetailsModalClose(index) }>{location.price}</AnnotationText>
         </AnnotationContainer>
-        <MapboxGL.Callout title={location.title} />
       </MapboxGL.PointAnnotation>
     ))
   )
 
   renderMarker = () => (
-    this.state.newRealty && !this.state.cameraModalOpened ? (
+    this.state.newRealty && !this.state.cameraModalOpened &&
       <Marker resizeMode="contain" source={require('../../images/marker.png')} />
-    ) : null
   )
 
   renderImagesList = () => (
-    this.state.realtyData.images.length !== 0 ? (
+    this.state.realtyData.images.length !== 0 && (
       <ModalImagesListContainer>
         <ModalImagesList horizontal>
           { this.state.realtyData.images.map(image => (
@@ -233,7 +247,21 @@ export default class Main extends Component {
           ))}
         </ModalImagesList>
       </ModalImagesListContainer>
-    ) : null
+    )
+  )
+
+  renderDetailsImagesList = () => (
+    this.state.detailsModalOpened && (
+      <ModalImagesList horizontal>
+        { this.state.locations[this.state.realtyDetailed].images.map(image => (
+          <ModalImageItem
+            key={image.id}
+            source={{ uri: `${image.url}${image.path}` }}
+            resizeMode="stretch"
+          />
+        ))}
+      </ModalImagesList>
+    )
   )
 
   renderCameraModal = () => (
@@ -310,21 +338,21 @@ export default class Main extends Component {
           <Input
             placeholder="Nome do Imóvel"
             value={this.state.realtyData.name}
-            onChangeText={this.handleNameChange}
+            onChangeText={name => this.handleInputChange('name', name)}
             autoCapitalize="none"
             autoCorrect={false}
           />
           <Input
             placeholder="Endereço"
             value={this.state.realtyData.address}
-            onChangeText={this.handleAddressChange}
+            onChangeText={address => this.handleInputChange('address', address)}
             autoCapitalize="none"
             autoCorrect={false}
           />
           <Input
             placeholder="Preço"
             value={this.state.realtyData.price}
-            onChangeText={this.handlePriceChange}
+            onChangeText={price => this.handleInputChange('price', price)}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -337,6 +365,45 @@ export default class Main extends Component {
             <ButtonText>Cancelar</ButtonText>
           </CancelButtonContainer>
         </DataButtonsWrapper>
+      </ModalContainer>
+    </Modal>
+  )
+
+  renderDetailsModal = () => (
+    <Modal
+      visible={this.state.detailsModalOpened}
+      transparent={false}
+      animationType="slide"
+      onRequestClose={this.handleDetailsModalClose}
+    >
+      <ModalContainer>
+        <DetailsModalFirstDivision>
+          <DetailsModalBackButton onPress={() => this.handleDetailsModalClose(null)}>
+            Voltar
+          </DetailsModalBackButton>
+        </DetailsModalFirstDivision>
+        <DetailsModalSecondDivision>
+          <DetailsModalRealtyTitle>
+            {this.state.detailsModalOpened
+              ? this.state.locations[this.state.realtyDetailed].title
+              : ''
+            }
+          </DetailsModalRealtyTitle>
+          <DetailsModalRealtySubTitle>Casa mobiliada com 3 quartos + quintal</DetailsModalRealtySubTitle>
+          <DetailsModalRealtyAddress>
+            {this.state.detailsModalOpened
+              ? this.state.locations[this.state.realtyDetailed].address
+              : ''
+            }
+          </DetailsModalRealtyAddress>
+          { this.renderDetailsImagesList() }
+        </DetailsModalSecondDivision>
+        <DetailsModalThirdDivision>
+          <DetailsModalPrice>R$ {this.state.detailsModalOpened
+            ? this.state.locations[this.state.realtyDetailed].price
+            : 0
+          }</DetailsModalPrice>
+        </DetailsModalThirdDivision>
       </ModalContainer>
     </Modal>
   )
@@ -357,6 +424,7 @@ export default class Main extends Component {
         { this.renderMarker() }
         { this.renderCameraModal() }
         { this.renderDataModal() }
+        { this.renderDetailsModal() }
       </Container>
     );
   }

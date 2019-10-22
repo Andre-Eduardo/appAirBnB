@@ -22,7 +22,7 @@ export default class SignIn extends Component {
 	static navigationOptions = {
 			header: null,
 			};
-	state = { email: '', password: '', error: '' };
+	state = { email: 'andre.eduardo11@hotmail.com', password: '123456', error: '' };
 
 	static propTypes = {
 		navigation: PropTypes.shape({
