@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { StatusBar, AsyncStorage } from 'react-native';
+import { StatusBar } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 
 import api from '../../services/api';
@@ -21,7 +22,7 @@ export default class SignIn extends Component {
 	static navigationOptions = {
 			header: null,
 			};
-	state = { email: '', password: '', error: '' };
+	state = { email: 'andre.eduardo11@hotmail.com', password: '123456', error: '' };
 
 	static propTypes = {
 		navigation: PropTypes.shape({
@@ -53,7 +54,7 @@ export default class SignIn extends Component {
 					});
 							
 					await AsyncStorage.setItem('@AirBnbApp:token', response.data.token);
-
+					
 					const resetAction = StackActions.reset({
 							index: 0,
 							actions: [
